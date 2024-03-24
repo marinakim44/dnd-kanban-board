@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Drag and Drop</title>
+    <title>DnD Kanban</title>
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -18,7 +18,13 @@
           </span>
           <!-- backlog content -->
           <div id="backlog-content" class="custom-scroll">
-            <ul class="drag-item-list" id="backlog-list"></ul>
+            <ul
+              class="drag-item-list"
+              id="backlog-list"
+              ondrop="drop(event)"
+              ondragover="allowDrop(event)"
+              ondragenter="dragEnter(0)"
+            ></ul>
           </div>
           <!-- add button group -->
           <div class="add-btn-group">
@@ -42,7 +48,13 @@
           </span>
           <!-- progress content -->
           <div id="progress-content" class="custom-scroll">
-            <ul class="drag-item-list" id="progress-list"></ul>
+            <ul
+              class="drag-item-list"
+              id="progress-list"
+              ondrop="drop(event)"
+              ondragover="allowDrop(event)"
+              ondragenter="dragEnter(1)"
+            ></ul>
           </div>
           <!-- add button group -->
           <div class="add-btn-group">
@@ -66,7 +78,13 @@
           </span>
           <!-- complete content -->
           <div id="complete-content" class="custom-scroll">
-            <ul class="drag-item-list" id="complete-list"></ul>
+            <ul
+              class="drag-item-list"
+              id="complete-list"
+              ondrop="drop(event)"
+              ondragover="allowDrop(event)"
+              ondragenter="dragEnter(2)"
+            ></ul>
           </div>
           <!-- add button group -->
           <div class="add-btn-group">
@@ -90,7 +108,13 @@
           </span>
           <!-- onhold content -->
           <div id="on-hold-content" class="custom-scroll">
-            <ul class="drag-item-list" id="on-hold-list"></ul>
+            <ul
+              class="drag-item-list"
+              id="on-hold-list"
+              ondrop="drop(event)"
+              ondragover="allowDrop(event)"
+              ondragenter="dragEnter(3)"
+            ></ul>
           </div>
           <!-- add button group -->
           <div class="add-btn-group">
