@@ -20,6 +20,7 @@ let onHoldListArray = [];
 let listArrays = [];
 
 // Drag Functionality
+let dragging = false;
 let draggedItem;
 let currentColumn;
 
@@ -57,6 +58,12 @@ function updateSavedColumns() {
   });
 }
 
+// filter arrays to remove empty items
+function filterArr(arr) {
+  const filteredArr = arr.filter((item) => item !== null);
+  return filteredArr;
+}
+
 // Create DOM Elements for each list item
 function createItemEl(columnEl, column, item, index) {
   // List Item
@@ -65,6 +72,9 @@ function createItemEl(columnEl, column, item, index) {
   listEl.textContent = item;
   listEl.draggable = true;
   listEl.setAttribute("ondragstart", "drag(event)");
+  listEl.contentEditable = true;
+  listEl.id = index;
+  listEl.setAttribute("onfocusout", `updateItem(${index}, ${column})`);
 
   columnEl.appendChild(listEl);
 }
@@ -72,7 +82,6 @@ function createItemEl(columnEl, column, item, index) {
 // Update Columns in DOM - Reset HTML, Filter Array, Update localStorage
 function updateDOM() {
   // Check localStorage once
-  console.log("updatedOnLoad:", updatedOnLoad);
   if (!updatedOnLoad) {
     getSavedColumns();
   }
@@ -82,28 +91,70 @@ function updateDOM() {
   backlogListArray.forEach((backlogItem, index) => {
     createItemEl(backlogList, 0, backlogItem, index);
   });
+  backlogListArray = filterArr(backlogListArray);
 
   // Progress Column
   progressList.textContent = "";
   progressListArray.forEach((progressItem, index) => {
-    createItemEl(progressList, 0, progressItem, index);
+    createItemEl(progressList, 1, progressItem, index);
   });
+  progressListArray = filterArr(progressListArray);
 
   // Complete Column
   completeList.textContent = "";
   completeListArray.forEach((completeItem, index) => {
-    createItemEl(completeList, 0, completeItem, index);
+    createItemEl(completeList, 2, completeItem, index);
   });
+  completeListArray = filterArr(completeListArray);
 
   // On Hold Column
   onHoldList.textContent = "";
   onHoldListArray.forEach((onHoldItem, index) => {
-    createItemEl(onHoldList, 0, onHoldItem, index);
+    createItemEl(onHoldList, 3, onHoldItem, index);
   });
+  onHoldListArray = filterArr(onHoldListArray);
 
   // Run getSavedColumns only once, Update Local Storage
   updatedOnLoad = true;
   updateSavedColumns();
+}
+
+// update item or delete if empty or update array value
+function updateItem(id, column) {
+  const selectedArr = listArrays[column];
+  const selectedColumnEl = listColumns[column].children;
+  if (!dragging) {
+    if (!selectedColumnEl[id].textContent) {
+      delete selectedArr[id];
+    } else {
+      selectedArr[id] = selectedColumnEl[id].textContent;
+    }
+    updateDOM();
+  }
+}
+
+// save input and reset text box
+function addToColumn(col) {
+  const itemText = addItems[col].textContent;
+  const selectedArr = listArrays[col];
+  selectedArr.push(itemText);
+  addItems[col].textContent = "";
+  updateDOM();
+}
+
+// show add item input box
+function showInputBox(col) {
+  addBtns[col].style.visibility = "hidden";
+  saveItemBtns[col].style.display = "flex";
+  addItemContainers[col].style.display = "flex";
+}
+
+// hide add item input box
+function hideInputBox(col) {
+  addBtns[col].style.visibility = "visible";
+  saveItemBtns[col].style.display = "none";
+  addItemContainers[col].style.display = "none";
+  addToColumn(col);
 }
 
 // local storage
@@ -124,27 +175,20 @@ function rebuildArrays() {
   for (let i = 0; i < onHoldList.children.length; i++) {
     onHoldListArray.push(onHoldList.children[i].textContent);
   }
-  console.log(
-    "rebuilding arrays: ",
-    backlogListArray,
-    progressListArray,
-    completeListArray,
-    onHoldListArray
-  );
+
   updateDOM();
 }
 
 // when item starts dragging
 function drag(e) {
   draggedItem = e.target;
-  console.log("dragging element: ", draggedItem);
+  dragging = true;
 }
 
 // when item enters column
 function dragEnter(col) {
   listColumns[col].classList.add("over");
   currentColumn = col;
-  console.log("entering column: ", col);
 }
 
 // column allows to drop here
@@ -161,9 +205,9 @@ function drop(e) {
   });
   // add dropped item to new col
   const parentEl = listColumns[currentColumn];
-  console.log("parent element: ", parentEl);
   parentEl.appendChild(draggedItem);
-  console.log("parent element 2: ", parentEl);
+
+  dragging = false;
   rebuildArrays();
 }
 // on load
